@@ -6,9 +6,14 @@ use App\Filament\Resources\WorkshopParticipantResource\Pages;
 use App\Filament\Resources\WorkshopParticipantResource\RelationManagers;
 use App\Models\WorkshopParticipant;
 use Filament\Forms;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
+use Filament\Tables\Columns\ImageColumn;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
@@ -23,7 +28,15 @@ class WorkshopParticipantResource extends Resource
     {
         return $form
             ->schema([
-                //
+                TextInput::make('name')->required()->maxLength(255),
+
+                TextInput::make('occupation')->required()->maxLength(255),
+
+                TextInput::make('email')->required()->maxLength(255),
+
+                Select::make('workshop_id')->relationship('workshop', 'name')->required()->preload()->searchable(),
+
+                Select::make('booking_transaction_id')->relationship('bookingTransaction', 'booking_trx_id')->required()->preload()->searchable(),
             ]);
     }
 
@@ -31,10 +44,16 @@ class WorkshopParticipantResource extends Resource
     {
         return $table
             ->columns([
-                //
+                ImageColumn::make('workshop.thumbnail'),
+
+                TextColumn::make('bookingTransaction.booking_trx_id')->searchable(),
+
+                TextColumn::make('name')->searchable(),
+
+                TextColumn::make('email')->searchable(),
             ])
             ->filters([
-                //
+                SelectFilter::make('workshop_id')->label('workshop')->relationship('workshop', 'name'),
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
